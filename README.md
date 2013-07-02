@@ -18,4 +18,4 @@ or download it and drop it manually into your [packages](http://sublimetext.info
 3. paste url into textbox
 4. press Enter
 
-remote page loaded and its source opened at new tab
+remote page loads and its source opens at new tab
