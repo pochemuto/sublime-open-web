@@ -1,4 +1,5 @@
-import sublime, sublime_plugin, urllib2, StringIO
+import sublime, sublime_plugin, urllib2, StringIO, base64
+from urlparse import urlparse, urlunsplit
 
 class OpenWebCommand(sublime_plugin.WindowCommand):
 
@@ -12,8 +13,25 @@ class OpenWebCommand(sublime_plugin.WindowCommand):
             url = url.strip()
             if not (url.startswith("http://") or url.startswith("https://") or url.startswith("ftp://")) :
                 url = "http://" + url
+            print "loading " + url + " ..."
+
+            # getting username passwords
+            url_components = urlparse(url)
+            if (url_components.username):
+                # trim username/password from url
+                host = url_components.hostname
+                if url_components.port is not None:
+                    host += ":" + str(url_components.port)
+                url = urlunsplit((url_components.scheme, host, url_components.path, url_components.query, url_components.fragment))
+                # re
+                base64string = base64.encodestring('%s:%s' % (url_components.username, url_components.password)).replace('\n', '')
+                request = urllib2.Request(url) 
+                request.add_header("Authorization", "Basic %s" % base64string)  
+            else:
+                request = urllib2.Request(url) 
+            
+            remotefile = urllib2.urlopen(request)     
             localfile = StringIO.StringIO()
-            remotefile = urllib2.urlopen(url)
             sublime.status_message("Loading " + url + "...")
             localfile.write(remotefile.read())
             defaultEncoding="utf-8"
@@ -37,8 +55,8 @@ class OpenWebCommand(sublime_plugin.WindowCommand):
             sublime.error_message("Loading '{0}' url error: {1}".format(url, e))
         except urllib2.HTTPError as e:
             sublime.error_message("Loading '{0}' error: {1}".format(url, e))
-        except ValueError as e:
-            sublime.error_message("Loading '{0}' error: {1}".format(url, e))
+        #except ValueError as e:
+            #sublime.error_message("Loading '{0}' error: {1}".format(url, e))
         finally:
             if view:
                 view.end_edit(edit)
