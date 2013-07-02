@@ -1,0 +1,9 @@
+[  
+{  
+    "id": "file",  
+    "children":  
+    [  
+        { "command": "open_web", "caption": "Open Web..."}  
+    ]  
+}  
+] 
