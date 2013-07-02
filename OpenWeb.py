@@ -16,11 +16,17 @@ class OpenWebCommand(sublime_plugin.WindowCommand):
             remotefile = urllib2.urlopen(url)
             sublime.status_message("Loading " + url + "...")
             localfile.write(remotefile.read())
+            defaultEncoding="utf-8"
             if (remotefile.headers['content-type']):
-                encoding=remotefile.headers['content-type'].split('charset=')[-1] 
+                encoding=remotefile.headers['content-type'].split('charset=')
+                if len(encoding) > 1:
+                    encoding = encoding[1]
+                else:
+                   encoding=defaultEncoding
             else:
-                encoding="utf-8"
+                encoding=defaultEncoding
             view = self.window.new_file()
+            view.set_name(url)
             edit = view.begin_edit()
             view.insert(edit, 0, unicode(localfile.getvalue(), encoding))
             localfile.close()
