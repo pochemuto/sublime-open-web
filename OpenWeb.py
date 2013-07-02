@@ -9,6 +9,9 @@ class OpenWebCommand(sublime_plugin.WindowCommand):
     def on_done(self, url):
         view = None
         try:
+            url = url.strip()
+            if not (url.startswith("http://") or url.startswith("https://") or url.startswith("ftp://")) :
+                url = "http://" + url
             localfile = StringIO.StringIO()
             remotefile = urllib2.urlopen(url)
             sublime.status_message("Loading " + url + "...")
@@ -27,6 +30,8 @@ class OpenWebCommand(sublime_plugin.WindowCommand):
         except urllib2.URLError as e:
             sublime.error_message("Loading '{0}' url error: {1}".format(url, e))
         except urllib2.HTTPError as e:
+            sublime.error_message("Loading '{0}' error: {1}".format(url, e))
+        except ValueError as e:
             sublime.error_message("Loading '{0}' error: {1}".format(url, e))
         finally:
             if view:
